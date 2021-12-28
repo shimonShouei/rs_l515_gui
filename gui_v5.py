@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # license removed for brevity
 import subprocess
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from tkinter import *
 import numpy as np
 import rospy
@@ -113,6 +113,11 @@ def videoDepthLoop(mirror=False):
         # check switcher value
 
 
+def _on_mousewheel(self, event):
+    print("mw")
+    self.canvas.yview_scroll(-1*(event.delta/120), "units")
+
+
 def videoLoop(mirror=False):
     if videoloop_stop[1] == 1:
         # if switcher tells to stop then we switch it again and stop videoloop
@@ -154,9 +159,12 @@ def videoLoop(mirror=False):
         # check switcher value
 
 
-
-
 class APP:
+
+    def init_tabs_dict(self):
+        self.tabs_dict["motors_control"] = self.create_tab()
+        self.tabs_dict["joints_control"] = self.create_tab()
+        self.tabs_dict["plans_control"] = self.create_tab()
 
     def __init__(self):
         # ROS
@@ -168,33 +176,35 @@ class APP:
 
         # tkinter
         self.root = Tk()
+
         self.root.title("Tab Widget")
         self.tabControl = ttk.Notebook(self.root)
-
-        self.tab1 = ttk.Frame(self.tabControl)
-        self.tab1.pack(fill=BOTH, expand=1)
-        self.tab2 = ttk.Frame(self.tabControl)
-        self.tab2.pack(fill=BOTH, expand=1)
-        self.tab3 = ttk.Frame(self.tabControl)
-        self.tab3.pack(fill=BOTH, expand=1)
-        self.tab4 = ttk.Frame(self.tabControl)
-        self.tab4.pack(fill=BOTH, expand=1)
+        self.tabs_dict = {}
+        self.tab1 = self.create_tab()
+        self.tab2 = self.create_tab()
+        self.tab3 = self.create_tab()
+        self.tab4 = self.create_tab()
+        self.tab5 = self.create_tab()
 
         self.tabControl.add(self.tab1, text='Tab 1')
         self.tabControl.add(self.tab2, text='Tab 2')
         self.tabControl.add(self.tab3, text='Tab 3')
         self.tabControl.add(self.tab4, text='Tab 4')
+        self.tabControl.add(self.tab5, text='Tab 5')
         self.tabControl.pack(expand=1, fill="both")
 
         self.my_canvas_tab1 = Canvas(self.tab1)
+
         self.my_canvas_tab2 = Canvas(self.tab2)
         self.my_canvas_tab3 = Canvas(self.tab3)
         self.my_canvas_tab4 = Canvas(self.tab4)
+        self.my_canvas_tab5 = Canvas(self.tab5)
 
         self.my_canvas_tab1.pack(side=TOP, fill=BOTH, expand=1)
         self.my_canvas_tab2.pack(side=TOP, fill=BOTH, expand=1)
         self.my_canvas_tab3.pack(side=TOP, fill=BOTH, expand=1)
         self.my_canvas_tab4.pack(side=TOP, fill=BOTH, expand=1)
+        self.my_canvas_tab5.pack(side=TOP, fill=BOTH, expand=1)
 
         # y_scrollbar.pack(side=RIGHT, fill=Y)
 
@@ -202,26 +212,42 @@ class APP:
         self.frame_tab2 = Frame(self.my_canvas_tab2, width=1000, height=10000)
         self.frame_tab3 = Frame(self.my_canvas_tab3, width=1000, height=10000)
         self.frame_tab4 = Frame(self.my_canvas_tab4, width=1000, height=10000)
+        self.frame_tab5 = Frame(self.my_canvas_tab5, width=1000, height=10000)
 
         self.my_canvas_tab1.create_window(500, 38 * N_motor, window=self.frame_tab1)
         self.my_canvas_tab2.create_window(700, 34 * N_joints, window=self.frame_tab2)
         self.my_canvas_tab3.create_window(700, 34 * N_joints, window=self.frame_tab3)
         self.my_canvas_tab4.create_window(700, 34 * N_joints, window=self.frame_tab4)
+        self.my_canvas_tab5.create_window(700, 34 * N_joints, window=self.frame_tab5)
 
         self.y_scrollbar_tab1 = ttk.Scrollbar(self.my_canvas_tab1, orient=VERTICAL, command=self.my_canvas_tab1.yview)
         self.y_scrollbar_tab2 = ttk.Scrollbar(self.my_canvas_tab2, orient=VERTICAL, command=self.my_canvas_tab2.yview)
         self.y_scrollbar_tab3 = ttk.Scrollbar(self.my_canvas_tab3, orient=VERTICAL, command=self.my_canvas_tab3.yview)
         self.y_scrollbar_tab4 = ttk.Scrollbar(self.my_canvas_tab4, orient=VERTICAL, command=self.my_canvas_tab4.yview)
+        self.y_scrollbar_tab5 = ttk.Scrollbar(self.my_canvas_tab5, orient=VERTICAL, command=self.my_canvas_tab5.yview)
 
         self.my_canvas_tab1.config(yscrollcommand=self.y_scrollbar_tab1.set, scrollregion=(0, 0, 1000, 2000))
         self.my_canvas_tab2.config(yscrollcommand=self.y_scrollbar_tab2.set, scrollregion=(0, 0, 1000, 2000))
         self.my_canvas_tab3.config(yscrollcommand=self.y_scrollbar_tab3.set, scrollregion=(0, 0, 1000, 2000))
-        self.my_canvas_tab4.config(yscrollcommand=self.y_scrollbar_tab3.set, scrollregion=(0, 0, 1000, 2000))
+        self.my_canvas_tab4.config(yscrollcommand=self.y_scrollbar_tab4.set, scrollregion=(0, 0, 1000, 2000))
+        self.my_canvas_tab5.config(yscrollcommand=self.y_scrollbar_tab5.set, scrollregion=(0, 0, 1000, 2000))
 
         self.y_scrollbar_tab1.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab2.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab3.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab4.pack(side=RIGHT, fill=Y)
+        self.y_scrollbar_tab5.pack(side=RIGHT, fill=Y)
+        # mouse wheel scroll
+        self.my_canvas_tab1.bind('<4>', lambda event: self.my_canvas_tab1.yview('scroll', -1, 'units'))
+        self.my_canvas_tab1.bind('<5>', lambda event: self.my_canvas_tab1.yview('scroll', 1, 'units'))
+        self.my_canvas_tab2.bind('<4>', lambda event: self.my_canvas_tab2.yview('scroll', -1, 'units'))
+        self.my_canvas_tab2.bind('<5>', lambda event: self.my_canvas_tab2.yview('scroll', 1, 'units'))
+        self.my_canvas_tab3.bind('<4>', lambda event: self.my_canvas_tab3.yview('scroll', -1, 'units'))
+        self.my_canvas_tab3.bind('<5>', lambda event: self.my_canvas_tab3.yview('scroll', 1, 'units'))
+        self.my_canvas_tab4.bind('<4>', lambda event: self.my_canvas_tab4.yview('scroll', -1, 'units'))
+        self.my_canvas_tab4.bind('<5>', lambda event: self.my_canvas_tab4.yview('scroll', 1, 'units'))
+        self.my_canvas_tab5.bind('<4>', lambda event: self.my_canvas_tab5.yview('scroll', -1, 'units'))
+        self.my_canvas_tab5.bind('<5>', lambda event: self.my_canvas_tab5.yview('scroll', 1, 'units'))
 
         self.tab3_button1 = Button(
             self.my_canvas_tab3, text="start", bg="#fff", font=("", 20),
@@ -308,24 +334,43 @@ class APP:
                 self.tension_label_tab2[i][j].grid(column=5 + j, row=i, padx=30)
                 j_row += 3
 
-        self.homing_process = ''
-        self.homing_button = Button(self.frame_tab1, text="Homing", bg="#fff", font=("", 20),
-                                    command=partial(self.launch_homing))
+        self.process = ''
+        self.homing_button = Button(self.frame_tab5, text="Homing", bg="#fff", font=("", 20),
+                                    command=partial(self.run_node, "rosrun robot_snake_10 controller_v10_4"))
+        # TODO kill homing automatically
         self.homing_button.grid(column=1, row=0)
-        self.homing_kill_button = Button(self.frame_tab1, text="Kill Homing", bg="#fff", font=("", 20),
+        self.circle_button = Button(self.frame_tab5, text="circle move", bg="#fff", font=("", 20),
+                                    command=partial(self.run_node, "rosrun robot_snake_10 circle_move"))
+        self.circle_button.grid(column=1, row=1)
+        self.square_button = Button(self.frame_tab5, text="square move", bg="#fff", font=("", 20),
+                                    command=partial(self.run_node, "rosrun robot_snake_10 square_move"))
+        self.square_button.grid(column=1, row=2)
+        self.homing_kill_button = Button(self.frame_tab5, text="Kill Homing", bg="#fff", font=("", 20),
                                          command=partial(self.kill_homing))
         self.homing_kill_button.grid(column=2, row=0)
+
+        self.rosbag_val = IntVar()
+        self.bag_btn = Checkbutton(self.frame_tab5, text="ros bag", variable=self.rosbag_val, onvalue=1, offvalue=0)
+        self.bag_btn.grid(column=4, row=0)
         self.home_position()
 
         # while not rospy.is_shutdown():
         #     rospy.Rate(100).sleep()
 
-    def launch_homing(self):
-        self.homing_process = subprocess.Popen("rosrun robot_snake_4 controller_v4_3".split(), shell=False)
+
+    def create_tab(self):
+        tab = ttk.Frame(self.tabControl)
+        tab.pack(fill=BOTH, expand=1)
+        return tab
+
+    def run_node(self, command):
+        if self.rosbag_val:
+            ros_bag_proc = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(), shell=False)
+        self.process = subprocess.Popen(command.split(), shell=False)
 
     def kill_homing(self):
-        self.homing_process.kill()
-        self.homing_process.terminate()
+        self.process.kill()
+        self.process.terminate()
 
     def slider_pwm_change(self, event, i):
         # print(self.slider_pwm[i][j].get())
