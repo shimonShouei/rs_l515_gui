@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # license removed for brevity
 import subprocess
+import tkinter
 from tkinter import ttk, messagebox
 from tkinter import *
 import numpy as np
@@ -11,6 +12,8 @@ import cv2
 from PIL import Image, ImageTk
 import threading
 import pyrealsense2 as rs
+from tkinter.scrolledtext import ScrolledText
+from datetime import datetime
 
 # from std_msgs.msg import Float32MultiArray, Int32MultiArray
 
@@ -115,7 +118,7 @@ def videoDepthLoop(mirror=False):
 
 def _on_mousewheel(self, event):
     print("mw")
-    self.canvas.yview_scroll(-1*(event.delta/120), "units")
+    self.canvas.yview_scroll(-1 * (event.delta / 120), "units")
 
 
 def videoLoop(mirror=False):
@@ -176,7 +179,10 @@ class APP:
 
         # tkinter
         self.root = Tk()
-
+        self.root.geometry('1400x1000')
+        self.root.resizable(0, 0)
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
         self.root.title("Tab Widget")
         self.tabControl = ttk.Notebook(self.root)
         self.tabs_dict = {}
@@ -185,7 +191,8 @@ class APP:
         self.tab3 = self.create_tab()
         self.tab4 = self.create_tab()
         self.tab5 = self.create_tab()
-
+        self.tab5.columnconfigure(0, weight=1)
+        self.tab5.rowconfigure(0, weight=1)
         self.tabControl.add(self.tab1, text='Tab 1')
         self.tabControl.add(self.tab2, text='Tab 2')
         self.tabControl.add(self.tab3, text='Tab 3')
@@ -204,7 +211,9 @@ class APP:
         self.my_canvas_tab2.pack(side=TOP, fill=BOTH, expand=1)
         self.my_canvas_tab3.pack(side=TOP, fill=BOTH, expand=1)
         self.my_canvas_tab4.pack(side=TOP, fill=BOTH, expand=1)
-        self.my_canvas_tab5.pack(side=TOP, fill=BOTH, expand=1)
+        # self.my_canvas_tab5.pack(side=TOP, fill=BOTH, expand=1)
+        # self.my_canvas_tab5.columnconfigure(10, weight=1)
+        # self.my_canvas_tab5.rowconfigure(10, weight=1)
 
         # y_scrollbar.pack(side=RIGHT, fill=Y)
 
@@ -212,31 +221,35 @@ class APP:
         self.frame_tab2 = Frame(self.my_canvas_tab2, width=1000, height=10000)
         self.frame_tab3 = Frame(self.my_canvas_tab3, width=1000, height=10000)
         self.frame_tab4 = Frame(self.my_canvas_tab4, width=1000, height=10000)
-        self.frame_tab5 = Frame(self.my_canvas_tab5, width=1000, height=10000)
+        self.frame_tab5 = Frame(self.tab5, width=1000, height=10000)
+
+        self.frame_tab5.grid(row=0, column=0, sticky="nsew")
+        self.frame_tab5.columnconfigure(0, weight=1)
+        self.frame_tab5.rowconfigure(0, weight=1)
 
         self.my_canvas_tab1.create_window(500, 38 * N_motor, window=self.frame_tab1)
         self.my_canvas_tab2.create_window(700, 34 * N_joints, window=self.frame_tab2)
         self.my_canvas_tab3.create_window(700, 34 * N_joints, window=self.frame_tab3)
         self.my_canvas_tab4.create_window(700, 34 * N_joints, window=self.frame_tab4)
-        self.my_canvas_tab5.create_window(700, 34 * N_joints, window=self.frame_tab5)
+        # self.my_canvas_tab5.create_window(700, 34 * N_joints, window=self.frame_tab5)
 
         self.y_scrollbar_tab1 = ttk.Scrollbar(self.my_canvas_tab1, orient=VERTICAL, command=self.my_canvas_tab1.yview)
         self.y_scrollbar_tab2 = ttk.Scrollbar(self.my_canvas_tab2, orient=VERTICAL, command=self.my_canvas_tab2.yview)
         self.y_scrollbar_tab3 = ttk.Scrollbar(self.my_canvas_tab3, orient=VERTICAL, command=self.my_canvas_tab3.yview)
         self.y_scrollbar_tab4 = ttk.Scrollbar(self.my_canvas_tab4, orient=VERTICAL, command=self.my_canvas_tab4.yview)
-        self.y_scrollbar_tab5 = ttk.Scrollbar(self.my_canvas_tab5, orient=VERTICAL, command=self.my_canvas_tab5.yview)
+        # self.y_scrollbar_tab5 = ttk.Scrollbar(self.my_canvas_tab5, orient=VERTICAL, command=self.my_canvas_tab5.yview)
 
         self.my_canvas_tab1.config(yscrollcommand=self.y_scrollbar_tab1.set, scrollregion=(0, 0, 1000, 2000))
         self.my_canvas_tab2.config(yscrollcommand=self.y_scrollbar_tab2.set, scrollregion=(0, 0, 1000, 2000))
         self.my_canvas_tab3.config(yscrollcommand=self.y_scrollbar_tab3.set, scrollregion=(0, 0, 1000, 2000))
         self.my_canvas_tab4.config(yscrollcommand=self.y_scrollbar_tab4.set, scrollregion=(0, 0, 1000, 2000))
-        self.my_canvas_tab5.config(yscrollcommand=self.y_scrollbar_tab5.set, scrollregion=(0, 0, 1000, 2000))
+        # self.my_canvas_tab5.config(yscrollcommand=self.y_scrollbar_tab5.set, scrollregion=(0, 0, 1000, 2000))
 
         self.y_scrollbar_tab1.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab2.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab3.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab4.pack(side=RIGHT, fill=Y)
-        self.y_scrollbar_tab5.pack(side=RIGHT, fill=Y)
+        # self.y_scrollbar_tab5.pack(side=RIGHT, fill=Y)
         # mouse wheel scroll
         self.my_canvas_tab1.bind('<4>', lambda event: self.my_canvas_tab1.yview('scroll', -1, 'units'))
         self.my_canvas_tab1.bind('<5>', lambda event: self.my_canvas_tab1.yview('scroll', 1, 'units'))
@@ -246,8 +259,8 @@ class APP:
         self.my_canvas_tab3.bind('<5>', lambda event: self.my_canvas_tab3.yview('scroll', 1, 'units'))
         self.my_canvas_tab4.bind('<4>', lambda event: self.my_canvas_tab4.yview('scroll', -1, 'units'))
         self.my_canvas_tab4.bind('<5>', lambda event: self.my_canvas_tab4.yview('scroll', 1, 'units'))
-        self.my_canvas_tab5.bind('<4>', lambda event: self.my_canvas_tab5.yview('scroll', -1, 'units'))
-        self.my_canvas_tab5.bind('<5>', lambda event: self.my_canvas_tab5.yview('scroll', 1, 'units'))
+        # self.my_canvas_tab5.bind('<4>', lambda event: self.my_canvas_tab5.yview('scroll', -1, 'units'))
+        # self.my_canvas_tab5.bind('<5>', lambda event: self.my_canvas_tab5.yview('scroll', 1, 'units'))
 
         self.tab3_button1 = Button(
             self.my_canvas_tab3, text="start", bg="#fff", font=("", 20),
@@ -334,43 +347,105 @@ class APP:
                 self.tension_label_tab2[i][j].grid(column=5 + j, row=i, padx=30)
                 j_row += 3
 
-        self.process = ''
-        self.homing_button = Button(self.frame_tab5, text="Homing", bg="#fff", font=("", 20),
-                                    command=partial(self.run_node, "rosrun robot_snake_10 controller_v10_4"))
+        self.process_dict = {"circle": "", "square": "", "joystick": "", "homing": "", "serial_joint": ""
+            , "serial_motor": "", "serial_tension": "", "serial_linear": "", "rosbag": ""}
+        button_height = 2
+        button_width = 8
+        self.homing_button = Button(self.frame_tab5, text="Homing", bg="gray", font=("", 20), height=button_height,
+                                    width=button_width,
+                                    command=partial(self.run_node, "rosrun robot_snake_10 controller_v10_4", "homing"))
         # TODO kill homing automatically
-        self.homing_button.grid(column=1, row=0)
-        self.circle_button = Button(self.frame_tab5, text="circle move", bg="#fff", font=("", 20),
-                                    command=partial(self.run_node, "rosrun robot_snake_10 circle_move"))
-        self.circle_button.grid(column=1, row=1)
-        self.square_button = Button(self.frame_tab5, text="square move", bg="#fff", font=("", 20),
-                                    command=partial(self.run_node, "rosrun robot_snake_10 square_move"))
-        self.square_button.grid(column=1, row=2)
-        self.homing_kill_button = Button(self.frame_tab5, text="Kill Homing", bg="#fff", font=("", 20),
-                                         command=partial(self.kill_homing))
-        self.homing_kill_button.grid(column=2, row=0)
+        self.circle_button = Button(self.frame_tab5, text="Circle", bg="yellow", font=("", 20), height=button_height,
+                                    width=button_width,
+                                    command=partial(self.run_node, "rosrun robot_snake_10 circle_move", "circle"))
+        self.square_button = Button(self.frame_tab5, text="Square", bg="orange", font=("", 20), height=button_height,
+                                    width=button_width,
+                                    command=partial(self.run_node, "rosrun robot_snake_10 square_move", "square"))
+        self.joystick_button = Button(self.frame_tab5, text="Joystick", bg="blue", font=("", 20), height=button_height,
+                                    width=button_width,
+                                      command=partial(self.run_node, "?", "joystick"))
 
+        # self.homing_kill_button = Button(self.frame_tab5, text="Kill Homing", bg="#fff", font=("", 20),
+        #                                  command=partial(self.kill_homing))
+        # self.homing_kill_button.grid(column=2, row=7)
+        self.run_button = Button(self.frame_tab5, text="Run\ncontroller", bg="green", font=("", 20), height=button_height,
+                                    width=button_width,
+                                 command=partial(self.run_controller))
+
+        self.stop_button = Button(self.frame_tab5, text="Stop\nmotion", bg="red", font=("", 20), height=button_height,
+                                    width=button_width,
+                                  command=partial(self.stop_motion))
         self.rosbag_val = IntVar()
-        self.bag_btn = Checkbutton(self.frame_tab5, text="ros bag", variable=self.rosbag_val, onvalue=1, offvalue=0)
-        self.bag_btn.grid(column=4, row=0)
+        self.bag_btn = Checkbutton(self.frame_tab5, text="Record to bag", variable=self.rosbag_val, onvalue=1,
+                                   offvalue=0)
+
+        self.run_button.place(x=500, y=150)
+        self.joystick_button.place(x=300, y=325)
+        self.square_button.place(x=500, y=325)
+        self.circle_button.place(x=700, y=325)
+        self.homing_button.place(x=500, y=425)
+        self.bag_btn.place(x=1000, y=150)
+        self.stop_button.place(x=500, y=650)
+
+        self.log_area = tkinter.Text(self.frame_tab5, height=35, width=45)
+        self.log_area.place(x=1000, y=180)
+
+
         self.home_position()
 
         # while not rospy.is_shutdown():
         #     rospy.Rate(100).sleep()
-
 
     def create_tab(self):
         tab = ttk.Frame(self.tabControl)
         tab.pack(fill=BOTH, expand=1)
         return tab
 
-    def run_node(self, command):
-        if self.rosbag_val:
-            ros_bag_proc = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(), shell=False)
-        self.process = subprocess.Popen(command.split(), shell=False)
+    def stop_motion(self):
+        if self.rosbag_val.get():
+            self.process_dict["rosbag"] = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(),
+                                                           shell=False)
+        for proc in self.process_dict.keys():
+            process = self.process_dict[proc]
+            if process != "" and not proc.__contains__("serial"):
+                process.kill()
+                process.terminate()
+        self.send_motor_cmd([0 for x in range(N_motor)])
+        self.log_area.insert(tkinter.END, f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] All motions have stopped\n")
 
-    def kill_homing(self):
-        self.process.kill()
-        self.process.terminate()
+    def run_controller(self):
+        if self.rosbag_val.get():
+            self.process_dict["rosbag"] = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(),
+                                                           shell=False)
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0", "serial_joint")
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM1", "serial_motor")
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM2", "serial_tension")
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM3", "serial_linear")
+        self.log_area.insert(tkinter.END, f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] snake controller launched\n")
+
+    def run_node(self, command, proc_name):
+        if self.rosbag_val.get():
+            self.process_dict["rosbag"] = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(),
+                                                           shell=False)
+        self.process_dict[proc_name] = subprocess.Popen(command.split(), shell=False)
+        self.log_area.insert(tkinter.END, f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] {proc_name} launched\n")
+        if proc_name == "homing":
+            threshold = 0.01
+            self.log_area.insert(tkinter.END,
+                                 f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] run until get to {threshold}\n")
+
+            while not all([x <= threshold for x in self.joint_val_text_tab1]):
+                continue
+            self.process_dict[proc_name].kill()
+            self.process_dict[proc_name].terminate()
+            self.log_area.insert(tkinter.END,
+                                 f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] homing successfully done\n")
+
+
+
+    # def kill_homing(self):
+    #     self.process.kill()
+    #     self.process.terminate()
 
     def slider_pwm_change(self, event, i):
         # print(self.slider_pwm[i][j].get())
