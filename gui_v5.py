@@ -39,127 +39,19 @@ videoloop_stop = [0, 0]
 started = [False, False]
 pipe = rs.pipeline()
 threads = [[], []]
+No = 0
+# pipe = rs.pipeline()
+cap1 = cv2.VideoCapture(No)
+cap1.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 
-
-def button1_clicked():
-    # if not started[0]:
-    t = threading.Thread(target=videoLoop, args=(videoloop_stop,))
-    t.start()
-    threads[0].append(t)
-    started[0] = True
-
-
-# else:
-#     videoloop_stop[0] = False
-
-
-def button2_clicked():
-    videoloop_stop[0] = -1
-
-
-def button3_clicked():
-    # if not started[1]:
-    t = threading.Thread(target=videoDepthLoop, args=(videoloop_stop,))
-    t.start()
-    threads[1].append(t)
-    started[1] = True
-
-
-# else:
-#     videoloop_stop[1] = False
-#
-
-def button4_clicked():
-    videoloop_stop[1] = -1
-
-
-def videoDepthLoop(mirror=False):
-    if videoloop_stop[0] == 1:
-        # if switcher tells to stop then we switch it again and stop videoloop
-        # for t in threads[0]:
-        #     t.join()
-        videoloop_stop[0] = -1
-    No = 1
-    # pipe = rs.pipeline()
-    cap1 = cv2.VideoCapture(No)
-    cap1.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-    cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
-    colorizer = rs.colorizer()
-    cfg = rs.config()
-    profile = pipe.start(cfg)
-    # Skip 5 first frames to give the Auto-Exposure time to adjust
-    for x in range(5):
-        pipe.wait_for_frames()
-
-    while True:
-        if videoloop_stop[1] == -1:
-            # if switcher tells to stop then we switch it again and stop videoloop
-            pipe.stop()
-            print("Frames Captured")
-
-            videoloop_stop[1] = 0
-            panel.destroy()
-            cap1.release()
-
-            break
-        videoloop_stop[1] = 1
-        # Store next frameset for later processing:
-        frameset = pipe.wait_for_frames()
-        depth_frame = frameset.get_depth_frame()
-        # Render images
-        colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
-        img = Image.fromarray(colorized_depth)
-        image = ImageTk.PhotoImage(image=img)
-        panel = Label(image=image)
-        panel.image = image
-        panel.place(x=50, y=50)
-        # check switcher value
+colorizer = rs.colorizer()
+cfg = rs.config()
 
 
 def _on_mousewheel(self, event):
     print("mw")
     self.canvas.yview_scroll(-1 * (event.delta / 120), "units")
-
-
-def videoLoop(mirror=False):
-    if videoloop_stop[1] == 1:
-        # if switcher tells to stop then we switch it again and stop videoloop
-        # for t in threads[1]:
-        #     t.join()
-        videoloop_stop[1] = -1
-    No = 1
-    # pipe = rs.pipeline()
-    cap1 = cv2.VideoCapture(No)
-    cap1.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-    cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
-    cfg = rs.config()
-    profile = pipe.start(cfg)
-    # Skip 5 first frames to give the Auto-Exposure time to adjust
-    for x in range(5):
-        pipe.wait_for_frames()
-
-    while True:
-        if videoloop_stop[0] == -1:
-            # if switcher tells to stop then we switch it again and stop videoloop
-            pipe.stop()
-            print("Frames Captured")
-            videoloop_stop[0] = 0
-            panel.destroy()
-            cap1.release()
-
-            break
-        videoloop_stop[0] = 1
-        # Store next frameset for later processing:
-        frameset = pipe.wait_for_frames()
-        color_frame = frameset.get_color_frame()
-        color_image = np.asanyarray(color_frame.get_data())
-        # Render images
-        img = Image.fromarray(color_image)
-        image = ImageTk.PhotoImage(image=img)
-        panel = Label(image=image)
-        panel.image = image
-        panel.place(x=50, y=50)
-        # check switcher value
 
 
 class APP:
@@ -262,22 +154,27 @@ class APP:
         # self.my_canvas_tab5.bind('<4>', lambda event: self.my_canvas_tab5.yview('scroll', -1, 'units'))
         # self.my_canvas_tab5.bind('<5>', lambda event: self.my_canvas_tab5.yview('scroll', 1, 'units'))
 
+        self.panel3 = Label(self.my_canvas_tab3)
+        self.panel3.place(x=50, y=50)
+        self.panel4 = Label(self.my_canvas_tab4)
+        self.panel4.place(x=50, y=50)
+
         self.tab3_button1 = Button(
             self.my_canvas_tab3, text="start", bg="#fff", font=("", 20),
-            command=lambda: button1_clicked())
-        self.tab3_button1.place(x=350, y=750, width=200, height=100)
+            command=lambda: self.button1_clicked())
+        self.tab3_button1.place(x=350, y=850, width=200, height=100)
         self.tab3_button2 = Button(
             self.my_canvas_tab3, text="stop", bg="#fff", font=("", 20),
-            command=lambda: button2_clicked())
-        self.tab3_button2.place(x=150, y=750, width=200, height=100)
+            command=lambda: self.button2_clicked())
+        self.tab3_button2.place(x=150, y=850, width=200, height=100)
 
         self.tab4_button3 = Button(
             self.my_canvas_tab4, text="start", bg="#fff", font=("", 20),
-            command=lambda: button3_clicked())
+            command=lambda: self.button3_clicked())
         self.tab4_button3.place(x=350, y=750, width=200, height=100)
         self.tab4_button4 = Button(
             self.my_canvas_tab4, text="stop", bg="#fff", font=("", 20),
-            command=lambda: button4_clicked())
+            command=lambda: self.button4_clicked())
         self.tab4_button4.place(x=150, y=750, width=200, height=100)
 
         self.joint_val_text_tab1 = [0 for x in range(N_joints)]
@@ -392,11 +289,116 @@ class APP:
 
         self.log_area = tkinter.Text(self.frame_tab5, height=35, width=45)
         self.log_area.place(x=1000, y=180)
-
+        self.x = 0
+        self.y = 0
+        self.d = 0
         self.home_position()
 
         # while not rospy.is_shutdown():
         #     rospy.Rate(100).sleep()
+
+    def button1_clicked(self):
+        # if not started[0]:
+        t = threading.Thread(target=self.videoLoop, args=(videoloop_stop,))
+        t.start()
+        threads[0].append(t)
+        started[0] = True
+
+    # else:
+    #     videoloop_stop[0] = False
+
+    def button2_clicked(self):
+        videoloop_stop[0] = -1
+
+    def button3_clicked(self):
+        # if not started[1]:
+        t = threading.Thread(target=self.videoDepthLoop, args=(videoloop_stop,))
+        t.start()
+        threads[1].append(t)
+        started[1] = True
+
+    # else:
+    #     videoloop_stop[1] = False
+    #
+
+    def button4_clicked(self):
+        videoloop_stop[1] = -1
+
+    def videoDepthLoop(self, mirror=False):
+        if videoloop_stop[0] == 1:
+            # if switcher tells to stop then we switch it again and stop videoloop
+            # for t in threads[0]:
+            #     t.join()
+            videoloop_stop[0] = -1
+
+        profile = pipe.start(cfg)
+        # Skip 5 first frames to give the Auto-Exposure time to adjust
+        for x in range(5):
+            pipe.wait_for_frames()
+
+        while True:
+            if videoloop_stop[1] == -1:
+                # if switcher tells to stop then we switch it again and stop videoloop
+                pipe.stop()
+                print("Frames Captured")
+
+                videoloop_stop[1] = 0
+                # panel.destroy()
+                # cap1.release()
+
+                break
+            videoloop_stop[1] = 1
+            # Store next frameset for later processing:
+            frameset = pipe.wait_for_frames()
+            # depth_image = np.asanyarray(frameset.get_depth_frame().get_data())
+            # colorized_depth = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            depth_frame = frameset.get_depth_frame()
+            self.d = depth_frame.get_distance(int(self.x), int(self.y))
+            colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
+            img = Image.fromarray(colorized_depth)
+            image = ImageTk.PhotoImage(image=img)
+            self.panel4.configure(image=image)
+            self.panel4.image = image
+            self.panel4.bind('<Motion>', self.motion)
+            # check switcher value
+
+    def motion(self, event):
+        self.x, self.y = event.x, event.y
+        print('x: {}, y: {}, d: {}'.format(self.x, self.y, self.d))
+
+    def videoLoop(self, mirror=False):
+        if videoloop_stop[1] == 1:
+            # if switcher tells to stop then we switch it again and stop videoloop
+            # for t in threads[1]:
+            #     t.join()
+            videoloop_stop[1] = -1
+        No = 1
+        # pipe = rs.pipeline()
+        profile = pipe.start(cfg)
+        # Skip 5 first frames to give the Auto-Exposure time to adjust
+        for x in range(5):
+            pipe.wait_for_frames()
+
+        while True:
+            if videoloop_stop[0] == -1:
+                # if switcher tells to stop then we switch it again and stop videoloop
+                pipe.stop()
+                print("Frames Captured")
+                videoloop_stop[0] = 0
+                cap1.release()
+
+                break
+            videoloop_stop[0] = 1
+            # Store next frameset for later processing:
+            frameset = pipe.wait_for_frames()
+            color_frame = frameset.get_color_frame()
+            color_image = np.asanyarray(color_frame.get_data())
+            # Render images
+            img = Image.fromarray(color_image)
+            image = ImageTk.PhotoImage(image=img)
+            self.panel3.configure(image=image)
+            self.panel3.image = image
+            # check switcher value
 
     def create_tab(self):
         tab = ttk.Frame(self.tabControl)
