@@ -180,7 +180,7 @@ class APP:
         # tkinter
         self.root = Tk()
         self.root.geometry('1400x1000')
-        self.root.resizable(0, 0)
+        self.root.resizable(1, 1)
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         self.root.title("Tab Widget")
@@ -348,12 +348,14 @@ class APP:
                 j_row += 3
 
         self.process_dict = {"circle": "", "square": "", "joystick": "", "homing": "", "serial_joint": ""
-            , "serial_motor": "", "serial_tension": "", "serial_linear": "", "rosbag": ""}
+            , "serial_motor": "", "serial_tension": "", "serial_linear": ""}
         button_height = 2
         button_width = 8
         self.homing_button = Button(self.frame_tab5, text="Homing", bg="gray", font=("", 20), height=button_height,
                                     width=button_width,
-                                    command=partial(self.run_node, "rosrun robot_snake_10 controller_v10_4", "homing"))
+                                    command=partial(self.run_node,
+                                                    "rosrun robot_snake_10 homing_controller __name:=homing_controller",
+                                                    "homing"))
         # TODO kill homing automatically
         self.circle_button = Button(self.frame_tab5, text="Circle", bg="yellow", font=("", 20), height=button_height,
                                     width=button_width,
@@ -362,18 +364,19 @@ class APP:
                                     width=button_width,
                                     command=partial(self.run_node, "rosrun robot_snake_10 square_move", "square"))
         self.joystick_button = Button(self.frame_tab5, text="Joystick", bg="blue", font=("", 20), height=button_height,
-                                    width=button_width,
+                                      width=button_width,
                                       command=partial(self.run_node, "?", "joystick"))
 
         # self.homing_kill_button = Button(self.frame_tab5, text="Kill Homing", bg="#fff", font=("", 20),
         #                                  command=partial(self.kill_homing))
         # self.homing_kill_button.grid(column=2, row=7)
-        self.run_button = Button(self.frame_tab5, text="Run\ncontroller", bg="green", font=("", 20), height=button_height,
-                                    width=button_width,
+        self.run_button = Button(self.frame_tab5, text="Run\ncontroller", bg="green", font=("", 20),
+                                 height=button_height,
+                                 width=button_width,
                                  command=partial(self.run_controller))
 
         self.stop_button = Button(self.frame_tab5, text="Stop\nmotion", bg="red", font=("", 20), height=button_height,
-                                    width=button_width,
+                                  width=button_width,
                                   command=partial(self.stop_motion))
         self.rosbag_val = IntVar()
         self.bag_btn = Checkbutton(self.frame_tab5, text="Record to bag", variable=self.rosbag_val, onvalue=1,
@@ -390,7 +393,6 @@ class APP:
         self.log_area = tkinter.Text(self.frame_tab5, height=35, width=45)
         self.log_area.place(x=1000, y=180)
 
-
         self.home_position()
 
         # while not rospy.is_shutdown():
@@ -403,45 +405,62 @@ class APP:
 
     def stop_motion(self):
         if self.rosbag_val.get():
-            self.process_dict["rosbag"] = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(),
-                                                           shell=False)
+            self.process_dict["rosbag"].kill()
+            self.process_dict["rosbag"].terminate()
+            subprocess.Popen(
+                "rosnode kill /my_bag".split(),
+                shell=False)
+
         for proc in self.process_dict.keys():
             process = self.process_dict[proc]
             if process != "" and not proc.__contains__("serial"):
                 process.kill()
                 process.terminate()
-        self.send_motor_cmd([0 for x in range(N_motor)])
-        self.log_area.insert(tkinter.END, f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] All motions have stopped\n")
+                subprocess.Popen(
+                    f"rosnode kill /{proc}".split(),
+                    shell=False)
+        self.send_motor_cmd(np.array([0 for x in range(N_motor)]))
+        self.log_area.insert(tkinter.END,
+                             f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] All motions have stopped\n")
 
     def run_controller(self):
-        if self.rosbag_val.get():
-            self.process_dict["rosbag"] = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(),
-                                                           shell=False)
-        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0", "serial_joint")
-        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM1", "serial_motor")
-        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM2", "serial_tension")
-        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM3", "serial_linear")
-        self.log_area.insert(tkinter.END, f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] snake controller launched\n")
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0",
+                      "serial_joint")
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM1",
+                      "serial_motor")
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM2",
+                      "serial_tension")
+        self.run_node("rosrun rosserial_python serial_node.py _port:=/dev/ttyACM3",
+                      "serial_linear")
+        self.log_area.insert(tkinter.END,
+                             f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] snake controller launched\n")
 
     def run_node(self, command, proc_name):
-        if self.rosbag_val.get():
-            self.process_dict["rosbag"] = subprocess.Popen("my_rosbag -a -o $(find robot_snake_10)/bags/".split(),
-                                                           shell=False)
-        self.process_dict[proc_name] = subprocess.Popen(command.split(), shell=False)
+        if self.rosbag_val.get() and not proc_name.__contains__("serial") and not proc_name == "controller_v10_4":
+            if "rosbag" in self.process_dict:
+                self.process_dict["rosbag"] = subprocess.Popen(
+                    "rosnode kill /my_bag".split(),
+                    shell=False)
+                self.process_dict["rosbag"].kill()
+                self.process_dict["rosbag"].terminate()
+            self.process_dict["rosbag"] = subprocess.Popen(
+                "rosbag record -a -o /home/robot-snake/rs_ws/src/robot_snake_10/bags/ __name:=my_bag".split(),
+                shell=False)
+        if not proc_name.__contains__("serial") and not proc_name == "controller_v10_4":
+            self.run_node("rosrun robot_snake_10 controller_v10_4", "controller_v10_4")
+        self.process_dict[proc_name] = subprocess.Popen((command+f" __name:={proc_name}").split(), shell=False)
         self.log_area.insert(tkinter.END, f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] {proc_name} launched\n")
         if proc_name == "homing":
             threshold = 0.01
             self.log_area.insert(tkinter.END,
                                  f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] run until get to {threshold}\n")
 
-            while not all([x <= threshold for x in self.joint_val_text_tab1]):
+            while not all([x <= threshold for x in self.joint_val_tab1]):
                 continue
             self.process_dict[proc_name].kill()
             self.process_dict[proc_name].terminate()
             self.log_area.insert(tkinter.END,
                                  f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] homing successfully done\n")
-
-
 
     # def kill_homing(self):
     #     self.process.kill()
