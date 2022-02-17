@@ -80,28 +80,28 @@ class APP:
         self.tabs_dict = {}
         self.tab1 = self.create_tab()
         self.tab2 = self.create_tab()
-        self.tab3 = self.create_tab()
+        # self.tab3 = self.create_tab()
         self.tab4 = self.create_tab()
         self.tab5 = self.create_tab()
         self.tab5.columnconfigure(0, weight=1)
         self.tab5.rowconfigure(0, weight=1)
-        self.tabControl.add(self.tab1, text='Tab 1')
-        self.tabControl.add(self.tab2, text='Tab 2')
-        self.tabControl.add(self.tab3, text='Tab 3')
-        self.tabControl.add(self.tab4, text='Tab 4')
-        self.tabControl.add(self.tab5, text='Tab 5')
+        self.tabControl.add(self.tab1, text='Motors controller')
+        self.tabControl.add(self.tab2, text='Joints controller')
+        # self.tabControl.add(self.tab3, text='Tab 3')
+        self.tabControl.add(self.tab4, text='Camera')
+        self.tabControl.add(self.tab5, text='Programs')
         self.tabControl.pack(expand=1, fill="both")
 
         self.my_canvas_tab1 = Canvas(self.tab1)
 
         self.my_canvas_tab2 = Canvas(self.tab2)
-        self.my_canvas_tab3 = Canvas(self.tab3)
+        # self.my_canvas_tab3 = Canvas(self.tab3)
         self.my_canvas_tab4 = Canvas(self.tab4)
         self.my_canvas_tab5 = Canvas(self.tab5)
 
         self.my_canvas_tab1.pack(side=TOP, fill=BOTH, expand=1)
         self.my_canvas_tab2.pack(side=TOP, fill=BOTH, expand=1)
-        self.my_canvas_tab3.pack(side=TOP, fill=BOTH, expand=1)
+        # self.my_canvas_tab3.pack(side=TOP, fill=BOTH, expand=1)
         self.my_canvas_tab4.pack(side=TOP, fill=BOTH, expand=1)
         # self.my_canvas_tab5.pack(side=TOP, fill=BOTH, expand=1)
         # self.my_canvas_tab5.columnconfigure(10, weight=1)
@@ -111,7 +111,7 @@ class APP:
 
         self.frame_tab1 = Frame(self.my_canvas_tab1, width=1000, height=10000)
         self.frame_tab2 = Frame(self.my_canvas_tab2, width=1000, height=10000)
-        self.frame_tab3 = Frame(self.my_canvas_tab3, width=1000, height=10000)
+        # self.frame_tab3 = Frame(self.my_canvas_tab3, width=1000, height=10000)
         self.frame_tab4 = Frame(self.my_canvas_tab4, width=1000, height=10000)
         self.frame_tab5 = Frame(self.tab5, width=1000, height=10000)
 
@@ -121,25 +121,25 @@ class APP:
 
         self.my_canvas_tab1.create_window(500, 38 * N_motor, window=self.frame_tab1)
         self.my_canvas_tab2.create_window(700, 34 * N_joints, window=self.frame_tab2)
-        self.my_canvas_tab3.create_window(700, 34 * N_joints, window=self.frame_tab3)
+        # self.my_canvas_tab3.create_window(700, 34 * N_joints, window=self.frame_tab3)
         self.my_canvas_tab4.create_window(700, 34 * N_joints, window=self.frame_tab4)
         # self.my_canvas_tab5.create_window(700, 34 * N_joints, window=self.frame_tab5)
 
         self.y_scrollbar_tab1 = ttk.Scrollbar(self.my_canvas_tab1, orient=VERTICAL, command=self.my_canvas_tab1.yview)
         self.y_scrollbar_tab2 = ttk.Scrollbar(self.my_canvas_tab2, orient=VERTICAL, command=self.my_canvas_tab2.yview)
-        self.y_scrollbar_tab3 = ttk.Scrollbar(self.my_canvas_tab3, orient=VERTICAL, command=self.my_canvas_tab3.yview)
+        # self.y_scrollbar_tab3 = ttk.Scrollbar(self.my_canvas_tab3, orient=VERTICAL, command=self.my_canvas_tab3.yview)
         self.y_scrollbar_tab4 = ttk.Scrollbar(self.my_canvas_tab4, orient=VERTICAL, command=self.my_canvas_tab4.yview)
         # self.y_scrollbar_tab5 = ttk.Scrollbar(self.my_canvas_tab5, orient=VERTICAL, command=self.my_canvas_tab5.yview)
 
         self.my_canvas_tab1.config(yscrollcommand=self.y_scrollbar_tab1.set, scrollregion=(0, 0, 1000, 2000))
         self.my_canvas_tab2.config(yscrollcommand=self.y_scrollbar_tab2.set, scrollregion=(0, 0, 1000, 2000))
-        self.my_canvas_tab3.config(yscrollcommand=self.y_scrollbar_tab3.set, scrollregion=(0, 0, 1000, 2000))
+        # self.my_canvas_tab3.config(yscrollcommand=self.y_scrollbar_tab3.set, scrollregion=(0, 0, 1000, 2000))
         self.my_canvas_tab4.config(yscrollcommand=self.y_scrollbar_tab4.set, scrollregion=(0, 0, 1000, 2000))
         # self.my_canvas_tab5.config(yscrollcommand=self.y_scrollbar_tab5.set, scrollregion=(0, 0, 1000, 2000))
 
         self.y_scrollbar_tab1.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab2.pack(side=RIGHT, fill=Y)
-        self.y_scrollbar_tab3.pack(side=RIGHT, fill=Y)
+        # self.y_scrollbar_tab3.pack(side=RIGHT, fill=Y)
         self.y_scrollbar_tab4.pack(side=RIGHT, fill=Y)
         # self.y_scrollbar_tab5.pack(side=RIGHT, fill=Y)
         # mouse wheel scroll
@@ -147,26 +147,30 @@ class APP:
         self.my_canvas_tab1.bind('<5>', lambda event: self.my_canvas_tab1.yview('scroll', 1, 'units'))
         self.my_canvas_tab2.bind('<4>', lambda event: self.my_canvas_tab2.yview('scroll', -1, 'units'))
         self.my_canvas_tab2.bind('<5>', lambda event: self.my_canvas_tab2.yview('scroll', 1, 'units'))
-        self.my_canvas_tab3.bind('<4>', lambda event: self.my_canvas_tab3.yview('scroll', -1, 'units'))
-        self.my_canvas_tab3.bind('<5>', lambda event: self.my_canvas_tab3.yview('scroll', 1, 'units'))
+        # self.my_canvas_tab3.bind('<4>', lambda event: self.my_canvas_tab3.yview('scroll', -1, 'units'))
+        # self.my_canvas_tab3.bind('<5>', lambda event: self.my_canvas_tab3.yview('scroll', 1, 'units'))
         self.my_canvas_tab4.bind('<4>', lambda event: self.my_canvas_tab4.yview('scroll', -1, 'units'))
         self.my_canvas_tab4.bind('<5>', lambda event: self.my_canvas_tab4.yview('scroll', 1, 'units'))
         # self.my_canvas_tab5.bind('<4>', lambda event: self.my_canvas_tab5.yview('scroll', -1, 'units'))
         # self.my_canvas_tab5.bind('<5>', lambda event: self.my_canvas_tab5.yview('scroll', 1, 'units'))
 
-        self.panel3 = Label(self.my_canvas_tab3)
-        self.panel3.place(x=50, y=50)
         self.panel4 = Label(self.my_canvas_tab4)
         self.panel4.place(x=50, y=50)
+        self.panel3 = Label(self.my_canvas_tab4)
+        self.panel3.place(x=700, y=50)
+        self.details_img = StringVar()
+        self.details_img.set("Wait for motion...")
+        self.details_img_label = Label(self.my_canvas_tab4, textvariable=self.details_img)
+        self.details_img_label.place(x=700, y=510)
 
-        self.tab3_button1 = Button(
-            self.my_canvas_tab3, text="start", bg="#fff", font=("", 20),
-            command=lambda: self.button1_clicked())
-        self.tab3_button1.place(x=350, y=850, width=200, height=100)
-        self.tab3_button2 = Button(
-            self.my_canvas_tab3, text="stop", bg="#fff", font=("", 20),
-            command=lambda: self.button2_clicked())
-        self.tab3_button2.place(x=150, y=850, width=200, height=100)
+        # self.tab3_button1 = Button(
+        #     self.my_canvas_tab3, text="start", bg="#fff", font=("", 20),
+        #     command=lambda: self.button1_clicked())
+        # self.tab3_button1.place(x=350, y=850, width=200, height=100)
+        # self.tab3_button2 = Button(
+        #     self.my_canvas_tab3, text="stop", bg="#fff", font=("", 20),
+        #     command=lambda: self.button2_clicked())
+        # self.tab3_button2.place(x=150, y=850, width=200, height=100)
 
         self.tab4_button3 = Button(
             self.my_canvas_tab4, text="start", bg="#fff", font=("", 20),
@@ -297,18 +301,18 @@ class APP:
         # while not rospy.is_shutdown():
         #     rospy.Rate(100).sleep()
 
-    def button1_clicked(self):
-        # if not started[0]:
-        t = threading.Thread(target=self.videoLoop, args=(videoloop_stop,))
-        t.start()
-        threads[0].append(t)
-        started[0] = True
-
-    # else:
-    #     videoloop_stop[0] = False
-
-    def button2_clicked(self):
-        videoloop_stop[0] = -1
+    # def button1_clicked(self):
+    #     # if not started[0]:
+    #     t = threading.Thread(target=self.videoLoop, args=(videoloop_stop,))
+    #     t.start()
+    #     threads[0].append(t)
+    #     started[0] = True
+    #
+    # # else:
+    # #     videoloop_stop[0] = False
+    #
+    # def button2_clicked(self):
+    #     videoloop_stop[0] = -1
 
     def button3_clicked(self):
         # if not started[1]:
@@ -353,52 +357,114 @@ class APP:
             # depth_image = np.asanyarray(frameset.get_depth_frame().get_data())
             # colorized_depth = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
             depth_frame = frameset.get_depth_frame()
-            self.d = depth_frame.get_distance(int(self.x), int(self.y))
+            try:
+                self.d = depth_frame.get_distance(int(self.x), int(self.y))
+            except RuntimeError as e:
+                print(e)
+                print("x", int(self.x), "y", int(self.y))
+                self.d = None
             colorized_depth = np.asanyarray(colorizer.colorize(depth_frame).get_data())
-            img = Image.fromarray(colorized_depth)
+
+            color_frame = frameset.get_color_frame()
+            if not depth_frame or not color_frame:
+                continue
+
+            # Convert images to numpy arrays
+            color_image = np.asanyarray(color_frame.get_data())
+
+            # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
+            # depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+
+            depth_colormap_dim = colorized_depth.shape
+            color_colormap_dim = color_image.shape
+
+            # If depth and color resolutions are different, resize color image to match depth image for display
+            if depth_colormap_dim != color_colormap_dim:
+                color_image = cv2.resize(color_image, dsize=(depth_colormap_dim[1], depth_colormap_dim[0]),
+                                         interpolation=cv2.INTER_AREA)
+                # images = np.hstack((resized_color_image, colorized_depth))
+            # else:
+            # images = np.hstack((color_image, colorized_depth))
+
+            img_d = Image.fromarray(colorized_depth)
+            image_d = ImageTk.PhotoImage(image=img_d)
+            self.panel3.configure(image=image_d)
+            self.panel3.image = image_d
+            self.panel3.bind('<Motion>', self.motion_d)
+            img = Image.fromarray(color_image)
             image = ImageTk.PhotoImage(image=img)
             self.panel4.configure(image=image)
             self.panel4.image = image
             self.panel4.bind('<Motion>', self.motion)
             # check switcher value
 
+    def motion_d(self, event):
+        self.x, self.y = event.x, event.y
+        val = 'x: {}, y: {}, d: {} m'.format(self.x, self.y, self.d)
+        self.details_img.set(val)
+
     def motion(self, event):
         self.x, self.y = event.x, event.y
-        print('x: {}, y: {}, d: {}'.format(self.x, self.y, self.d))
+        val = 'x: {}, y: {}, d: {} m'.format(self.x, self.y, self.d)
+        self.details_img.set(val)
 
-    def videoLoop(self, mirror=False):
-        if videoloop_stop[1] == 1:
-            # if switcher tells to stop then we switch it again and stop videoloop
-            # for t in threads[1]:
-            #     t.join()
-            videoloop_stop[1] = -1
-        No = 1
-        # pipe = rs.pipeline()
-        profile = pipe.start(cfg)
-        # Skip 5 first frames to give the Auto-Exposure time to adjust
-        for x in range(5):
-            pipe.wait_for_frames()
-
-        while True:
-            if videoloop_stop[0] == -1:
-                # if switcher tells to stop then we switch it again and stop videoloop
-                pipe.stop()
-                print("Frames Captured")
-                videoloop_stop[0] = 0
-                cap1.release()
-
-                break
-            videoloop_stop[0] = 1
-            # Store next frameset for later processing:
-            frameset = pipe.wait_for_frames()
-            color_frame = frameset.get_color_frame()
-            color_image = np.asanyarray(color_frame.get_data())
-            # Render images
-            img = Image.fromarray(color_image)
-            image = ImageTk.PhotoImage(image=img)
-            self.panel3.configure(image=image)
-            self.panel3.image = image
-            # check switcher value
+    # def videoLoop(self, mirror=False):
+    #     if videoloop_stop[1] == 1:
+    #         # if switcher tells to stop then we switch it again and stop videoloop
+    #         # for t in threads[1]:
+    #         #     t.join()
+    #         videoloop_stop[1] = -1
+    #     No = 1
+    #     # pipe = rs.pipeline()
+    #     profile = pipe.start(cfg)
+    #     # Skip 5 first frames to give the Auto-Exposure time to adjust
+    #     for x in range(5):
+    #         pipe.wait_for_frames()
+    #
+    #     while True:
+    #         if videoloop_stop[0] == -1:
+    #             # if switcher tells to stop then we switch it again and stop videoloop
+    #             pipe.stop()
+    #             print("Frames Captured")
+    #             videoloop_stop[0] = 0
+    #             cap1.release()
+    #
+    #             break
+    #         # videoloop_stop[0] = 1
+    #         # # Store next frameset for later processing:
+    #         # frameset = pipe.wait_for_frames()
+    #         # color_frame = frameset.get_color_frame()
+    #         # color_image = np.asanyarray(color_frame.get_data())
+    #         # Wait for a coherent pair of frames: depth and color
+    #         frames = pipe.wait_for_frames()
+    #         depth_frame = frames.get_depth_frame()
+    #         color_frame = frames.get_color_frame()
+    #         if not depth_frame or not color_frame:
+    #             continue
+    #
+    #         # Convert images to numpy arrays
+    #         depth_image = np.asanyarray(depth_frame.get_data())
+    #         color_image = np.asanyarray(color_frame.get_data())
+    #
+    #         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
+    #         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+    #
+    #         depth_colormap_dim = depth_colormap.shape
+    #         color_colormap_dim = color_image.shape
+    #
+    #         # If depth and color resolutions are different, resize color image to match depth image for display
+    #         if depth_colormap_dim != color_colormap_dim:
+    #             resized_color_image = cv2.resize(color_image, dsize=(depth_colormap_dim[1], depth_colormap_dim[0]),
+    #                                              interpolation=cv2.INTER_AREA)
+    #             images = np.hstack((resized_color_image, depth_colormap))
+    #         else:
+    #             images = np.hstack((color_image, depth_colormap))
+    #         # Render images
+    #         img = Image.fromarray(images)
+    #         image = ImageTk.PhotoImage(image=img)
+    #         self.panel3.configure(image=image)
+    #         self.panel3.image = image
+    #         # check switcher value
 
     def create_tab(self):
         tab = ttk.Frame(self.tabControl)
@@ -450,7 +516,7 @@ class APP:
                 shell=False)
         if not proc_name.__contains__("serial") and not proc_name == "controller_v10_4":
             self.run_node("rosrun robot_snake_10 controller_v10_4", "controller_v10_4")
-        self.process_dict[proc_name] = subprocess.Popen((command+f" __name:={proc_name}").split(), shell=False)
+        self.process_dict[proc_name] = subprocess.Popen((command + f" __name:={proc_name}").split(), shell=False)
         self.log_area.insert(tkinter.END, f"[{datetime.now().strftime('%y-%m-%d %H:%M:%S')}] {proc_name} launched\n")
         if proc_name == "homing":
             threshold = 0.01
